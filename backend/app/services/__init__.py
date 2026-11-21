@@ -15,6 +15,7 @@ from app.services.import_batch import ImportBatchService
 from app.services.record_lineage import RecordLineageService
 from app.services.mdm_sync import MdmSyncService
 from app.services.mdm_version import MdmVersionService
+from app.services.version_mapping import VersionMappingService
 from app.services.auto_match_job import AutoMatchJobService
 from app.services.mdm_quality import MdmQualityService
 from app.services.mdm_reference import MdmReferenceService
@@ -35,6 +36,7 @@ SERVICES: dict[str, BaseModuleService] = {
     "record_lineage": RecordLineageService(),
     "mdm_sync": MdmSyncService(),
     "mdm_version": MdmVersionService(),
+    "version_mapping": VersionMappingService(),
     "auto_match_job": AutoMatchJobService(),
     "mdm_quality": MdmQualityService(),
     "mdm_reference": MdmReferenceService(),

@@ -11,7 +11,7 @@
 .
 ├── frontend/                 Vue 3 + Vite + TypeScript 前端
 │   ├── src/views/WorkbenchView.vue|tsx  全部模块共享工作台
-│   ├── src/data/modules.ts              18个业务模块配置
+│   ├── src/data/modules.ts              19个业务模块配置
 │   ├── src/api/              统一请求封装
 │   └── vite.config.ts        dev server 配置（open: false）
 ├── backend/                  FastAPI（Python） 后端
@@ -34,6 +34,23 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
 
 健康检查：`curl http://127.0.0.1:8000/api/health`
+
+### 黄金版本号迁移与回切
+
+存量浮点版本号（9.0、10.0，含 "10"/"10.0" 两种旧写法）迁移到精确整数版本身份：
+
+```bash
+# 建立黄金版本映射并回填版本身份（幂等，可重复执行；原 版本号/记录版本 字段保留）
+curl -X POST http://127.0.0.1:8000/api/version-mapping/migrate -d '{"batch":"MIG-1"}' -H 'Content-Type: application/json'
+# 旧编号/新编号统一解析到唯一版本身份（歧义显式报错，不落到另一版）
+curl -X POST http://127.0.0.1:8000/api/version-mapping/resolve -d '{"golden_id":"GR-1","version":"10.0"}' -H 'Content-Type: application/json'
+# 旧编号与新序列依赖边界
+curl http://127.0.0.1:8000/api/version-mapping/boundary/GR-1
+# 按原编号或新编号读取版本数据 / 新提交快照 / 按原参数回切
+curl 'http://127.0.0.1:8000/api/version-mapping/golden/GR-1?version=9.0'
+curl -X POST http://127.0.0.1:8000/api/version-mapping/snapshot -d '{"golden_id":"GR-1","record_data":{"地址":"新址"}}' -H 'Content-Type: application/json'
+curl -X POST http://127.0.0.1:8000/api/version-mapping/rollback -d '{"golden_id":"GR-1","version":"10.0"}' -H 'Content-Type: application/json'
+```
 
 ### 前端
 
@@ -62,7 +79,8 @@ npm run dev
 | 批次导入管理 | `import_batch` | 导入批次 | 批次编号、来源系统、实体模型 |
 | 记录级血缘 | `record_lineage` | 血缘记录 | 血缘编号、黄金ID、来源记录 |
 | 主数据分发同步 | `mdm_sync` | 同步配置 | 配置编号、黄金实体、目标系统 |
-| 黄金记录版本 | `mdm_version` | 版本记录 | 版本编号、黄金ID、版本号 |
+| 黄金记录版本 | `mdm_version` | 版本记录 | 版本编号、黄金ID、版本身份、规范版本编号、版本号 |
+| 黄金版本映射 | `version_mapping` | 版本映射 | 映射编号、黄金ID、版本身份、旧编号写法、编号体系 |
 | 自动匹配任务 | `auto_match_job` | 匹配任务 | 任务编号、实体模型、匹配规则 |
 | 主数据质量统计 | `mdm_quality` | 质量统计 | 统计编号、实体模型、完备率 |
 | 参考数据管理 | `mdm_reference` | 参考数据 | 数据编号、数据类别、标准编码 |

@@ -472,6 +472,9 @@ SEED_ROWS: dict[str, list[dict[str, Any]]] = {
   '新值摘要': '黄金记录版本样例3',
   '变更批次': '黄金记录版本样例3',
   '版本时间': '2026-09-03'}],
+    # 黄金版本映射由迁移接口（/api/version-mapping/migrate）按需建立，
+    # 初始为空，保证模块注册后可通过通用资源接口查询映射数据。
+    "version_mapping": [],
     "auto_match_job": [{'id': 1,
   'status': '草稿',
   'pending': True,
